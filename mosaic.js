@@ -16,7 +16,7 @@ let initialParticipants = ['S001', 'S002', 'S003']
 let initialAttributes = ['sleep']
 
 // this var will hold the charts at each screen position
-const charts = ["S001", "S002", "S003"]
+let charts = ["S001", "S002", "S003"]
 
 // for (let i = 0; i < initialParticipants.length; i++) {
 //   for (let j = 0; j < initialAttributes.length; j++) {
@@ -124,25 +124,32 @@ function drawSleepChart () {
   console.log('Draw sleep chart')
 
   svg.selectAll(".chart")
-    .data(charts)
+    .data(charts, d => d)
     .join(
       function(enter) {
-        console.log(enter)
-        return enter.append("g")
+        let group = enter.append("g")
           .attr("class", "chart")
           .attr("transform", function(d, i) {
-            return `translate(${0}, ${100 + i * 80})`
+            return `translate(${0}, ${100 + (i * 80)})`
           })
-          .append("text")
+        group.append("text")
           .text(function(d) {
             return d
           })
+        group.append("g").call(timeAxis)
+          .attr("transform", `translate(${0}, ${50})`)
+        group.append("g").call(sleepMinutesAxis)
+          .attr("transform", `translate(${50}, ${0})`)
       },
       function(update) {
-        return update;
+        console.log(update)
+        update
+          // .transition()
+          // .duration(1000)
+          .attr('transform', (d,i) => `translate(${0}, ${100 + (i * 80)})`)
       },
       function(exit) {
-        console.log(exit)
+        console.log('exit')
         return exit.remove();
       }
     )
@@ -173,63 +180,27 @@ function drawRects(group, d) {
     })
 }
 
-  // for (var i = 0; i < participantData.length; i++) {
-  //   let id = participantData[i].id;
-    
-  //   var sleepGroup = svg.append("g")
-  //     .attr("id", id)
-  //     .attr("transform", `translate (${50}, ${100 + (i * 70)})`);
-
-  //   sleepGroup.selectAll("rect")
-  //     .data(participantData[i].data)
-  //     .enter()
-  //     .append("rect")
-  //     .attr("x", function(d, i) {
-  //       // console.log(this.xScale(d.date))
-  //       return timeScale(d.date);
-  //     })
-  //     .attr("y", function(d, i) {
-  //       return sleepMinutesScale(d.sleepMinutes);
-  //     })
-  //     .attr("width", 10)
-  //     .attr("height", function(d, i) {
-  //       return 50 - sleepMinutesScale(d.sleepMinutes);
-  //     })
-  //     .attr("fill", function(d, i) {
-  //       return sleepMinutesColorScale(d.sleepMinutes)
-  //     })
-  //     // .on('mouseover', function(event,d) {
-  //     //   tooltip.show(event, d)
-  //     // })
-  //     // .on('mouseout', tooltip.hide)
-    
-  //     // append axes
-  //   sleepGroup.append("g")
-  //     .attr("class", "xAxis")
-  //     .attr("transform", `translate(${0}, ${(i * 50)})`)
-  //     .call(timeAxis);
-  
-  //   sleepGroup.append("g")
-  //     .attr("transform", `translate(${paddingLeft}, ${0})`)
-  //     .call(sleepMinutesAxis);
-    
-  // }
-
 
   d3.select("#swap").on("click", function() {
     // swap index of selected dimension
     console.log('hey')
-    charts.pop()
+    // charts.pop()
     // charts.push('S004')
+    // svg.selectAll("text")
+    // .data(charts)
+    
 
+    var i = 0;
 
-    // var i = 0;
+    var swapValue = charts[i + 1];
+    charts[i + 1] = charts[i];
+    charts[i] = swapValue;
 
-    // var swapValue = charts[i + 1];
-    // charts[i + 1] = charts[i];
-    // charts[i] = swapValue;
+    // charts = ['S001', 'S003']
 
     console.log(charts)
+
+    drawSleepChart()
 
 
     
