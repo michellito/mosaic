@@ -16,13 +16,14 @@ let initialParticipants = ['S001', 'S002', 'S003']
 let initialAttributes = ['sleep']
 
 // this var will hold the charts at each screen position
-let charts = ["S001", "S002", "S003"]
+// let charts = ["S001", "S002", "S003"]
+let charts = [];
 
-// for (let i = 0; i < initialParticipants.length; i++) {
-//   for (let j = 0; j < initialAttributes.length; j++) {
-//     charts.push({id: initialParticipants[i], attribute: initialAttributes[j]});
-//   }
-// }
+for (let i = 0; i < initialParticipants.length; i++) {
+  for (let j = 0; j < initialAttributes.length; j++) {
+    charts.push({id: initialParticipants[i], attribute: initialAttributes[j]});
+  }
+}
 
 // console.log(charts)
 
@@ -124,7 +125,7 @@ function drawSleepChart () {
   console.log('Draw sleep chart')
 
   svg.selectAll(".chart")
-    .data(charts, d => d)
+    .data(charts, d => d.id)
     .join(
       function(enter) {
         let group = enter.append("g")
@@ -132,14 +133,18 @@ function drawSleepChart () {
           .attr("transform", function(d, i) {
             return `translate(${0}, ${100 + (i * 80)})`
           })
+          .each(function(d) {
+            drawRects(d3.select(this), d)
+          })
         group.append("text")
           .text(function(d) {
-            return d
+            return d.id
           })
         group.append("g").call(timeAxis)
           .attr("transform", `translate(${0}, ${50})`)
         group.append("g").call(sleepMinutesAxis)
           .attr("transform", `translate(${50}, ${0})`)
+        // drawRects(group, d.data)
       },
       function(update) {
         console.log(update)
