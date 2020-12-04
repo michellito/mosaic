@@ -3,23 +3,30 @@
 let width = 800;
 let height = window.innerWidth;
 let paddingLeft = 50;
+let paddingRight = 50;
 
-
-
+// set up svg canvas
 let svg = d3.select("#main")
   .append("svg")
   .attr("width", width)
   .attr("height", height)
 
+
 // ------- data loading and calculating scales -------------//
 
-let allParticipants = ['S001', 'S002', 'S003', 'S004', 'S005', 'S007']
+let allParticipants = [
+  'S001', 'S002', 'S003', 'S004', 'S005',
+  'S006', 'S007', 'S008', 'S009', 'S010',
+  'S011', 'S012', 'S013', 'S014', 'S015',
+  'S016', 'S017', 'S018', 'S019', 'S020',
+  'S021', 'S022', 'S023', 'S024', 'S025',
+  'S026', 'S027', 'S028', 'S029', 'S030',
+]
 
 let initialParticipants = ['S001', 'S002', 'S003']
 let initialAttributes = ['sleep']
 
-// this var will hold the charts at each screen position
-// let charts = ["S001", "S002", "S003"]
+// this var will hold the charts in order from top to bottom
 let charts = [];
 
 for (let i = 0; i < initialParticipants.length; i++) {
@@ -28,15 +35,37 @@ for (let i = 0; i < initialParticipants.length; i++) {
   }
 }
 
+let select = new SlimSelect({
+  select: '#multiple',
+  placeholder: 'Select Participants',
+  data: 
+    allParticipants.map(function(participant) {
+      return {text: participant}
+    })
+  ,
+  onChange: (info) => {
+    let selected = select.selected();
+    console.log(selected)
+    loadSummaryData(selected).then(function(response) {
+      participantData = response;
+      setScales(response);
 
+      let updatedCharts = [];
+      for (let i = 0; i < selected.length; i++) {
+        for (let j = 0; j < initialAttributes.length; j++) {
+          updatedCharts.push({id: selected[i], attribute: initialAttributes[j]});
+        }
+      }
+      
+      charts = updatedCharts;
+      drawCharts();
+    })
+  }
+})
 
-
-loadSummaryData(allParticipants).then(function(response) {
-  let extents = getExtents(response);
+function setScales(data) {
+  let extents = getExtents(data);
   let timeDomain = extents.time;
-
-  participantData = response;
-  // console.log(participantData)
 
   timeScale = d3.scaleTime()
     .domain(timeDomain)
@@ -66,27 +95,18 @@ loadSummaryData(allParticipants).then(function(response) {
   
   sleepMinutesColorScale = d3.scaleSequential(d3.interpolateBlues)
     .domain(extents.sleep)
+  console.log(extents.sleep)
+}
 
-  drawSleepChart();
 
-  let select = new SlimSelect({
-    select: '#multiple',
-    placeholder: 'Select Participants',
-    onChange: (info) => {
-      // console.log(select.selected());
-      let selected = select.selected();
-      let updatedCharts = [];
-      for (let i = 0; i < selected.length; i++) {
-        for (let j = 0; j < initialAttributes.length; j++) {
-          updatedCharts.push({id: selected[i], attribute: initialAttributes[j]});
-        }
-      }
-      charts = updatedCharts;
-      console.log(charts)
-      drawSleepChart();
-      
-    }
-  })
+loadSummaryData(initialParticipants).then(function(response) {
+  
+  participantData = response;
+  setScales(response);
+
+  drawCharts();
+
+  
   
   select.set(initialParticipants);
 });
@@ -141,7 +161,7 @@ function getExtents(participantData) {
   }
 }
 
-function drawSleepChart () {
+function drawCharts() {
 
   console.log('Draw sleep chart')
 
