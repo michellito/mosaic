@@ -6,6 +6,8 @@
     <script src="lodash.js"></script>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script type="text/javascript" src="loadData.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.26.2/slimselect.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.26.2/slimselect.min.css" rel="stylesheet"></link>
   </head>
 
   <body>
@@ -14,7 +16,23 @@
         <!-- Sidebar -->
         <div class="bg-light border-right" id="sidebar-wrapper">
           <div class="sidebar-heading">MOSAIC RAAMP2 LALALA</div>
-          <button id="swap" type="button" class="btn btn-primary">Primary</button>
+          <!-- <button id="swap" type="button" class="btn btn-primary">Primary</button> -->
+          <select id="multiple" class="list-group" placeholder="Select Participants" multiple>
+            <option value="S001">S001</option>
+            <option value="S002">S002</option>
+            <option value="S003">S003</option>
+            <option value="S004">S004</option>
+            <option value="S005">S005</option>
+            <option value="S006">S006</option>
+            <option value="S007">S007</option>
+            <option value="S008">S008</option>
+            <option value="S009">S009</option>
+            <option value="S010">S010</option>
+            <option value="S011">S011</option>
+            <option value="S012">S012</option>
+            <option value="S013">S013</option>
+          </select>
+
           <!-- <div class="list-group list-group-flush">
             <a href="#" class="list-group-item list-group-item-action bg-light">Dashboard</a>
             <a href="#" class="list-group-item list-group-item-action bg-light">Shortcuts</a>
