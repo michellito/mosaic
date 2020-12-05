@@ -1,4 +1,4 @@
-sleepTooltip = d3.tip()
+let sleepTooltip = d3.tip()
 	.attr('class', 'd3-tip')
 	.direction('n')
 	.offset([-10, 0])
@@ -7,11 +7,11 @@ sleepTooltip = d3.tip()
 		return "<strong>" + formatTime(d.date) + "<br/></strong> <div style='margin-top:5px'>" + d.sleepMinutes + " hours</div>"
 	});
 
-stepsTooltip = d3.tip()
+let stepsTooltip = d3.tip()
 	.attr('class', 'd3-tip')
 	.direction('n')
 	.offset([-10, 0])
 	.html(function(event ,d) {
 		var formatTime = d3.timeFormat("%a, %b %e")
-		return "<strong>" + formatTime(d.date) + "<br/></strong> <div style='margin-top:5px'>" + d.sleepMinutes + " hours</div>"
+		return "<strong>" + formatTime(d.date) + "<br/></strong> <div style='margin-top:5px'>" + d.steps + " steps</div>"
 	});

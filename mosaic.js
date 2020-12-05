@@ -141,7 +141,7 @@ function drawCharts() {
   console.log('Draw sleep chart')
 
   svg.selectAll(".chart")
-    .data(charts, d => d.id)
+    .data(charts, d => d.attribute + d.id)
     .join(
       function(enter) {
         let group = enter.append("g")
@@ -172,6 +172,19 @@ function drawCharts() {
 }
 
 function updateData(group, d) {
+  let attribute = d.attribute;
+  let scale, colorScale;
+  
+  if (attribute === 'sleep') {
+    scale = sleepMinutesScale;
+    colorScale = sleepMinutesColorScale;
+    attrib_name = 'sleepMinutes';
+  } else if (attribute === 'steps') {
+    scale = stepsScale;
+    colorScale = stepsColorScale;
+    attrib_name = 'steps';
+  }
+
   group.selectAll("rect")
     .transition()
     .duration(1000)
@@ -179,16 +192,46 @@ function updateData(group, d) {
       return timeScale(d.date);
     })
     .attr("y", function(d, i) {
-      return sleepMinutesScale(d.sleepMinutes);
+      return scale(d[attrib_name]);
     })
     .attr("width", 10)
     .attr("height", function(d, i) {
-      return 50 - sleepMinutesScale(d.sleepMinutes);
+      return 50 - scale(d[attrib_name]);
     })
     .attr("fill", function(d, i) {
-      return sleepMinutesColorScale(d.sleepMinutes)
+      return colorScale(d[attrib_name])
     })
 }
+
+function updateAxes(group, d) {
+
+  let attribute = d.attribute;
+  let axis, label;
+  
+  if (attribute === 'sleep') {
+    axis = sleepMinutesAxis;
+    label = 'Sleep (hrs/day)';
+  } else if (attribute === 'steps') {
+    axis = stepsAxis;
+    label = 'Steps';
+  }
+
+  group.append("text")   
+    .text(function(d) {
+      return d.id
+    })
+
+  group.append("g")
+    .attr("class", "timeAxis")
+    .call(timeAxis)
+    .attr("transform", `translate(${0}, ${50})`)
+  
+  group.append("g")
+    .attr("class", "sleepAxis")
+    .call(sleepMinutesAxis)
+    .attr("transform", `translate(${50}, ${0})`)
+}
+
 
 function drawAxes(group, d) {
 
@@ -232,7 +275,7 @@ function drawData(group, d) {
   } else if (attribute === 'steps') {
     scale = stepsScale;
     colorScale = stepsColorScale;
-    tooltip = sleepTooltip;
+    tooltip = stepsTooltip;
     attrib_name = 'steps';
   }
 
