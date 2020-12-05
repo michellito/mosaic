@@ -26,15 +26,15 @@ let allParticipants = [
 
 let allAttributes = ['sleep', 'steps']
 
-let initialParticipants = ['S001', 'S002', 'S003']
-let initialAttributes = ['sleep']
+let selectedParticipants = ['S001', 'S002', 'S003']
+let selectedAttributes = ['sleep']
 
 // this var will hold the charts in order from top to bottom
 let charts = [];
 
-for (let i = 0; i < initialParticipants.length; i++) {
-  for (let j = 0; j < initialAttributes.length; j++) {
-    charts.push({id: initialParticipants[i], attribute: initialAttributes[j]});
+for (let i = 0; i < selectedParticipants.length; i++) {
+  for (let j = 0; j < selectedAttributes.length; j++) {
+    charts.push({id: selectedParticipants[i], attribute: selectedAttributes[j]});
   }
 }
 
@@ -48,16 +48,15 @@ let participantSelect = new SlimSelect({
   ,
   closeOnSelect: false,
   onChange: (info) => {
-    let selected = participantSelect.selected();
-    console.log(selected)
-    loadSummaryData(selected).then(function(response) {
+    selectedParticipants = participantSelect.selected();
+    loadSummaryData(selectedParticipants).then(function(response) {
       participantData = response;
       setScales(response);
 
       let updatedCharts = [];
-      for (let i = 0; i < selected.length; i++) {
-        for (let j = 0; j < initialAttributes.length; j++) {
-          updatedCharts.push({id: selected[i], attribute: initialAttributes[j]});
+      for (let i = 0; i < selectedParticipants.length; i++) {
+        for (let j = 0; j < selectedAttributes.length; j++) {
+          updatedCharts.push({id: selectedParticipants[i], attribute: selectedAttributes[j]});
         }
       }
 
@@ -77,22 +76,15 @@ let attributeSelect = new SlimSelect({
   ,
   closeOnSelect: false,
   onChange: (info) => {
-    let selected = attributeSelect.selected();
-    // console.log(selected)
-    // loadSummaryData(selected).then(function(response) {
-    //   participantData = response;
-    //   setScales(response);
-
-    //   let updatedCharts = [];
-    //   for (let i = 0; i < selected.length; i++) {
-    //     for (let j = 0; j < initialAttributes.length; j++) {
-    //       updatedCharts.push({id: selected[i], attribute: initialAttributes[j]});
-    //     }
-    //   }
-
-    //   charts = updatedCharts;
-    //   drawCharts();
-    // })
+    selectedAttributes = attributeSelect.selected();
+    let updatedCharts = [];
+    for (let i = 0; i < selectedParticipants.length; i++) {
+      for (let j = 0; j < selectedAttributes.length; j++) {
+        updatedCharts.push({id: selectedParticipants[i], attribute: selectedAttributes[j]});
+      }
+    }
+    charts = updatedCharts;
+    drawCharts();
   }
 })
 
@@ -134,13 +126,13 @@ function setScales(data) {
 }
 
 
-loadSummaryData(initialParticipants).then(function(response) {
+loadSummaryData(selectedParticipants).then(function(response) {
   
   participantData = response;
   setScales(response);
   drawCharts();
-  participantSelect.set(initialParticipants);
-  attributeSelect.set(initialAttributes);
+  participantSelect.set(selectedParticipants);
+  attributeSelect.set(selectedAttributes);
 
 });
 
