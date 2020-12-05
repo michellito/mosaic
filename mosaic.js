@@ -25,6 +25,8 @@ let allParticipants = [
 ]
 
 let allAttributes = ['sleep', 'steps']
+let avg = {}
+let avgExtents = {}
 
 let selectedParticipants = ['S001', 'S002', 'S003']
 let selectedAttributes = ['sleep']
@@ -38,107 +40,40 @@ for (let i = 0; i < selectedParticipants.length; i++) {
   }
 }
 
-let participantSelect = new SlimSelect({
-  select: '#participant-select',
-  placeholder: 'Select Participants',
-  data: 
-    allParticipants.map(function(participant) {
-      return {text: participant}
-    })
-  ,
-  closeOnSelect: false,
-  onChange: (info) => {
-    selectedParticipants = participantSelect.selected();
-    loadSummaryData(selectedParticipants).then(function(response) {
-      participantData = response;
-      setScales(response);
-
-      let updatedCharts = [];
-      for (let i = 0; i < selectedParticipants.length; i++) {
-        for (let j = 0; j < selectedAttributes.length; j++) {
-          updatedCharts.push({id: selectedParticipants[i], attribute: selectedAttributes[j]});
-        }
-      }
-
-      charts = updatedCharts;
-      drawCharts();
-    })
-  }
-})
-
-let attributeSelect = new SlimSelect({
-  select: '#attribute-select',
-  placeholder: 'Select Attributes',
-  data: 
-    allAttributes.map(function(attribute) {
-      return {text: attribute}
-    })
-  ,
-  closeOnSelect: false,
-  onChange: (info) => {
-    selectedAttributes = attributeSelect.selected();
-    let updatedCharts = [];
-    for (let i = 0; i < selectedParticipants.length; i++) {
-      for (let j = 0; j < selectedAttributes.length; j++) {
-        updatedCharts.push({id: selectedParticipants[i], attribute: selectedAttributes[j]});
-      }
-    }
-    charts = updatedCharts;
-    drawCharts();
-  }
-})
-
-
-
-function setScales(data) {
-  let extents = getExtents(data);
-  let timeDomain = extents.time;
-
-  timeScale = d3.scaleTime()
-    .domain(timeDomain)
-    .range([paddingLeft, width])
-
-  timeAxis = d3.axisBottom()
-    .scale(timeScale);
-
-  stepsScale = d3.scaleLinear()
-    .domain(extents.steps)
-    .range([50, 0]);
-  
-  stepsAxis = d3.axisLeft()
-    .scale(stepsScale)
-    .ticks(3);
-  
-  stepsColorScale = d3.scaleSequential(d3.interpolatePurples)
-    .domain(extents.steps)
-  
-  sleepMinutesScale = d3.scaleLinear()
-    .domain(extents.sleep)
-    .range([50, 0]);
-
-  sleepMinutesAxis = d3.axisLeft()
-    .scale(sleepMinutesScale)
-    .ticks(3);
-  
-  sleepMinutesColorScale = d3.scaleSequential(d3.interpolateBlues)
-    .domain(extents.sleep)
-  console.log(extents.sleep)
-}
-
-
 loadSummaryData(selectedParticipants).then(function(response) {
-  
   participantData = response;
-  setScales(response);
+  setScales(participantData);
+  getAvg(participantData);
   drawCharts();
+  // set participant & attrib select to initial values
   participantSelect.set(selectedParticipants);
   attributeSelect.set(selectedAttributes);
-
 });
 
-function drawCharts() {
+function getAvg(data) {
 
-  console.log('Draw sleep chart')
+  for (const id in data) {
+    let participant = data[id];
+    if (!avg[id]) {
+      avg[id] = {}
+      let steps_avg = d3.mean(participant.summaryData.map(function(data) {
+        return data.steps;
+      }));
+      avg[id]['steps'] = step_avg;
+      let sleep_avg = d3.mean(participant.summaryData.map(function(data) {
+        return data.sleepMinutes;
+      }));
+      avg[id]['sleepMinutes'] = sleep_avg;
+    }
+  }
+
+  // get array of all steps averages
+  // let steps_avg = 
+  // avgExtents['steps'] = d3.extent()
+  // console.log(avg)
+}
+
+function drawCharts() {
 
   svg.selectAll(".chart")
     .data(charts, d => d.attribute + d.id)
@@ -168,7 +103,7 @@ function drawCharts() {
       function(exit) {
         exit.remove();
       }
-    )
+    );
 }
 
 function updateData(group, d) {
@@ -304,3 +239,62 @@ function drawData(group, d) {
     })
     .on('mouseout', tooltip.hide)
 }
+
+// ------- setup sidebar menu & interactions ------------- //
+
+let participantSelect = new SlimSelect({
+  select: '#participant-select',
+  placeholder: 'Select Participants',
+  data: 
+    allParticipants.map(function(participant) {
+      return {text: participant}
+    }),
+  closeOnSelect: false,
+  onChange: (info) => {
+    selectedParticipants = participantSelect.selected();
+    loadSummaryData(selectedParticipants).then(function(response) {
+      participantData = response;
+      getAvg(participantData);
+      setScales(participantData);
+      let updatedCharts = [];
+      for (let i = 0; i < selectedParticipants.length; i++) {
+        for (let j = 0; j < selectedAttributes.length; j++) {
+          updatedCharts.push({
+            id: selectedParticipants[i],
+            attribute: selectedAttributes[j]
+          });
+        }
+      }
+      charts = updatedCharts;
+      drawCharts();
+    })
+  }
+})
+
+let attributeSelect = new SlimSelect({
+  select: '#attribute-select',
+  placeholder: 'Select Attributes',
+  data: 
+    allAttributes.map(function(attribute) {
+      return {text: attribute}
+    }),
+  closeOnSelect: false,
+  onChange: (info) => {
+    selectedAttributes = attributeSelect.selected();
+    let updatedCharts = [];
+    for (let i = 0; i < selectedParticipants.length; i++) {
+      for (let j = 0; j < selectedAttributes.length; j++) {
+        updatedCharts.push({id: selectedParticipants[i], attribute: selectedAttributes[j]});
+      }
+    }
+    charts = updatedCharts;
+    drawCharts();
+  }
+})
+
+d3.select("#filter-avg").on("click", function() {
+  let minSteps = document.getElementById("minSteps").value;
+  let maxSteps = document.getElementById("maxSteps").value;
+  console.log(maxSteps)
+  console.log(minSteps)
+});

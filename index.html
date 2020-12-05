@@ -19,7 +19,7 @@
         <div class="bg-light border-right" id="sidebar-wrapper">
           <div class="sidebar-heading">MOSAIC RAAMP2</div>
           <hr>
-          <!-- <button id="swap" type="button" class="btn btn-primary">Primary</button> -->
+          
           <div class="form-group">
             <label>Participants</label>
             <select id="participant-select"
@@ -36,8 +36,15 @@
 
           <hr>
 
-          Settings
-          
+          <!-- Settings -->
+
+        
+          <div class="form-group form-inline">
+            <label>Filter by Average Steps</label>
+            <input id="minSteps" class="form-control form-control-sm" type="number" placeholder="min steps">
+            <input id="maxSteps" class="form-control form-control-sm" type="number" placeholder="max steps">
+          </div>
+          <button id="filter-avg" type="button" class="btn btn-primary">Filter</button>
         </div>
         <!-- /#sidebar-wrapper -->
     
@@ -48,8 +55,9 @@
         <!-- /#page-content-wrapper -->
     
       </div>
+      <script type="text/javascript" src="helpers/setScales.js"></script>
       <script type="text/javascript" src="helpers/getExtents.js"></script>
       <script type="text/javascript" src="helpers/tooltips.js"></script>
-    <script type="text/javascript" src="mosaic.js"></script>
+      <script type="text/javascript" src="mosaic.js"></script>
   </body>
 </html>

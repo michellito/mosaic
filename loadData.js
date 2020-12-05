@@ -8,7 +8,7 @@ function fileExists(urlToFile) {
 
 async function loadSummaryData(participants) {
     
-  let allData = [];
+  let allData = {};
 
   for (let i = 0; i < participants.length; i++) {
     let id = participants[i]
