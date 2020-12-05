@@ -150,45 +150,28 @@ function drawCharts() {
             return `translate(${0}, ${100 + (i * 80)})`
           })
           .each(function(d) {
-            drawSleepRects(d3.select(this), d)
+            drawData(d3.select(this), d)
+            drawAxes(d3.select(this), d)
           })
-          
-        group.append("text")   
-          .text(function(d) {
-            return d.id
-          })
-        group.append("g")
-          .attr("class", "timeAxis")
-          .call(timeAxis)
-          .attr("transform", `translate(${0}, ${50})`)
-        group.append("g")
-          .attr("class", "sleepAxis")
-          .call(sleepMinutesAxis)
-          .attr("transform", `translate(${50}, ${0})`)
-        
       },
       function(update) {
-        console.log('update')
         let group = update
           .transition()
           .duration(1000)
           .attr('transform', (d,i) => `translate(${0}, ${100 + (i * 80)})`)
           .each(function(d) {
-            console.log(d.id)
-            updateSleepRects(d3.select(this), d)
+            updateData(d3.select(this), d)
           })
-        group.select(".timeAxis").call(timeAxis)
-        group.select(".sleepAxis").call(sleepMinutesAxis)
-          
+        group.select(".timeAxis").call(timeAxis);
+        group.select(".sleepAxis").call(sleepMinutesAxis);
       },
       function(exit) {
-        console.log('exit')
         exit.remove();
       }
     )
 }
 
-function updateSleepRects(group, d) {
+function updateData(group, d) {
   group.selectAll("rect")
     .transition()
     .duration(1000)
@@ -207,9 +190,51 @@ function updateSleepRects(group, d) {
     })
 }
 
-function drawSleepRects(group, d) {
+function drawAxes(group, d) {
 
-  console.log(d)
+  let attribute = d.attribute;
+  let axis, label;
+  
+  if (attribute === 'sleep') {
+    axis = sleepMinutesAxis;
+    label = 'Sleep (hrs/day)';
+  } else if (attribute === 'steps') {
+    axis = stepsAxis;
+    label = 'Steps';
+  }
+
+  group.append("text")   
+    .text(function(d) {
+      return d.id
+    })
+
+  group.append("g")
+    .attr("class", "timeAxis")
+    .call(timeAxis)
+    .attr("transform", `translate(${0}, ${50})`)
+  
+  group.append("g")
+    .attr("class", "sleepAxis")
+    .call(sleepMinutesAxis)
+    .attr("transform", `translate(${50}, ${0})`)
+}
+
+function drawData(group, d) {
+
+  let attribute = d.attribute;
+  let scale, colorScale, tooltip;
+  
+  if (attribute === 'sleep') {
+    scale = sleepMinutesScale;
+    colorScale = sleepMinutesColorScale;
+    tooltip = sleepTooltip;
+    attrib_name = 'sleepMinutes';
+  } else if (attribute === 'steps') {
+    scale = stepsScale;
+    colorScale = stepsColorScale;
+    tooltip = sleepTooltip;
+    attrib_name = 'steps';
+  }
 
   let data = participantData[d.id].summaryData;
 
@@ -221,18 +246,18 @@ function drawSleepRects(group, d) {
       return timeScale(d.date);
     })
     .attr("y", function(d, i) {
-      return sleepMinutesScale(d.sleepMinutes);
+      return scale(d[attrib_name]);
     })
     .attr("width", 10)
     .attr("height", function(d, i) {
-      return 50 - sleepMinutesScale(d.sleepMinutes);
+      return 50 - scale(d[attrib_name]);
     })
     .attr("fill", function(d, i) {
-      return sleepMinutesColorScale(d.sleepMinutes)
+      return colorScale(d[attrib_name])
     })
-    .call(sleepTooltip)
+    .call(tooltip)
     .on('mouseover', function(event,d) {
-      sleepTooltip.show(event, d)
+      tooltip.show(event, d)
     })
-    .on('mouseout', sleepTooltip.hide)
+    .on('mouseout', tooltip.hide)
 }
