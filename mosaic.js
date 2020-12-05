@@ -1,6 +1,6 @@
 // ---------------- global formatting vars -----------------//
 
-let width = 800;
+let width = document.getElementById("main").offsetWidth * .7;
 let height = window.innerWidth;
 let paddingLeft = 50;
 let paddingRight = 50;
@@ -10,6 +10,7 @@ let svg = d3.select("#main")
   .append("svg")
   .attr("width", width)
   .attr("height", height)
+
 
 
 // ------- data loading and calculating scales -------------//
@@ -23,6 +24,8 @@ let allParticipants = [
   'S026', 'S027', 'S028', 'S029', 'S030',
 ]
 
+let allAttributes = ['sleep', 'steps']
+
 let initialParticipants = ['S001', 'S002', 'S003']
 let initialAttributes = ['sleep']
 
@@ -35,16 +38,17 @@ for (let i = 0; i < initialParticipants.length; i++) {
   }
 }
 
-let select = new SlimSelect({
-  select: '#multiple',
+let participantSelect = new SlimSelect({
+  select: '#participant-select',
   placeholder: 'Select Participants',
   data: 
     allParticipants.map(function(participant) {
       return {text: participant}
     })
   ,
+  closeOnSelect: false,
   onChange: (info) => {
-    let selected = select.selected();
+    let selected = participantSelect.selected();
     console.log(selected)
     loadSummaryData(selected).then(function(response) {
       participantData = response;
@@ -56,12 +60,43 @@ let select = new SlimSelect({
           updatedCharts.push({id: selected[i], attribute: initialAttributes[j]});
         }
       }
-      
+
       charts = updatedCharts;
       drawCharts();
     })
   }
 })
+
+let attributeSelect = new SlimSelect({
+  select: '#attribute-select',
+  placeholder: 'Select Attributes',
+  data: 
+    allAttributes.map(function(attribute) {
+      return {text: attribute}
+    })
+  ,
+  closeOnSelect: false,
+  onChange: (info) => {
+    let selected = attributeSelect.selected();
+    // console.log(selected)
+    // loadSummaryData(selected).then(function(response) {
+    //   participantData = response;
+    //   setScales(response);
+
+    //   let updatedCharts = [];
+    //   for (let i = 0; i < selected.length; i++) {
+    //     for (let j = 0; j < initialAttributes.length; j++) {
+    //       updatedCharts.push({id: selected[i], attribute: initialAttributes[j]});
+    //     }
+    //   }
+
+    //   charts = updatedCharts;
+    //   drawCharts();
+    // })
+  }
+})
+
+
 
 function setScales(data) {
   let extents = getExtents(data);
@@ -103,63 +138,11 @@ loadSummaryData(initialParticipants).then(function(response) {
   
   participantData = response;
   setScales(response);
-
   drawCharts();
+  participantSelect.set(initialParticipants);
+  attributeSelect.set(initialAttributes);
 
-  
-  
-  select.set(initialParticipants);
 });
-
-
-function getExtents(participantData) {
-
-  function getExtent(extents) {
-    let min = extents[0][0]
-    let max = extents[0][1]
-  
-    _.forEach(extents, function(extent) {
-      if (extent[0] < min) {
-        min = extent[0];
-      }
-        
-      if (extent[1] > max) {
-        max = extent[1]
-      }
-    });
-
-    return [min, max];
-  }
-  
-  let timeExtents = [];
-  let sleepExtents = [];
-  let stepExtents = [];
-  
-  for (const participant in participantData) {
-    timeExtents.push(d3.extent(participantData[participant].summaryData.map(function(d) {
-      return d.date;
-    })))
-
-    sleepExtents.push(d3.extent(participantData[participant].summaryData.map(function(d) {
-      return d.sleepMinutes;
-    })));
-
-    stepExtents.push(d3.extent(participantData[participant].summaryData.map(function(d) {
-      return d.steps;
-    })));
-
-  }
-
-  timeRange = getExtent(timeExtents);
-  stepRange = getExtent(stepExtents);
-  sleepRange = getExtent(sleepExtents);
-
-  return {
-    time: timeRange,
-    steps: stepRange,
-    sleep: sleepRange
-  }
-}
 
 function drawCharts() {
 
@@ -177,27 +160,59 @@ function drawCharts() {
           .each(function(d) {
             drawSleepRects(d3.select(this), d)
           })
-        group.append("text")
+          
+        group.append("text")   
           .text(function(d) {
             return d.id
           })
-        group.append("g").call(timeAxis)
+        group.append("g")
+          .attr("class", "timeAxis")
+          .call(timeAxis)
           .attr("transform", `translate(${0}, ${50})`)
-        group.append("g").call(sleepMinutesAxis)
+        group.append("g")
+          .attr("class", "sleepAxis")
+          .call(sleepMinutesAxis)
           .attr("transform", `translate(${50}, ${0})`)
+        
       },
       function(update) {
-        console.log(update)
-        update
+        console.log('update')
+        let group = update
           .transition()
           .duration(1000)
           .attr('transform', (d,i) => `translate(${0}, ${100 + (i * 80)})`)
+          .each(function(d) {
+            console.log(d.id)
+            updateSleepRects(d3.select(this), d)
+          })
+        group.select(".timeAxis").call(timeAxis)
+        group.select(".sleepAxis").call(sleepMinutesAxis)
+          
       },
       function(exit) {
         console.log('exit')
-        return exit.remove();
+        exit.remove();
       }
     )
+}
+
+function updateSleepRects(group, d) {
+  group.selectAll("rect")
+    .transition()
+    .duration(1000)
+    .attr("x", function(d, i) {
+      return timeScale(d.date);
+    })
+    .attr("y", function(d, i) {
+      return sleepMinutesScale(d.sleepMinutes);
+    })
+    .attr("width", 10)
+    .attr("height", function(d, i) {
+      return 50 - sleepMinutesScale(d.sleepMinutes);
+    })
+    .attr("fill", function(d, i) {
+      return sleepMinutesColorScale(d.sleepMinutes)
+    })
 }
 
 function drawSleepRects(group, d) {
@@ -223,21 +238,9 @@ function drawSleepRects(group, d) {
     .attr("fill", function(d, i) {
       return sleepMinutesColorScale(d.sleepMinutes)
     })
+    .call(sleepTooltip)
+    .on('mouseover', function(event,d) {
+      sleepTooltip.show(event, d)
+    })
+    .on('mouseout', sleepTooltip.hide)
 }
-
-
-d3.select("#swap").on("click", function() {
-  // swap index of selected dimension
-  console.log('hey')
-  // charts.pop()
-  charts.push({id: 'S004', attribute: 'sleep'})
-
-  // var i = 0;
-
-  // var swapValue = charts[i + 1];
-  // charts[i + 1] = charts[i];
-  // charts[i] = swapValue;
-
-  drawSleepChart()
-
-});

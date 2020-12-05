@@ -23,7 +23,7 @@ async function loadSummaryData(participants) {
         if (d) {
           return {
             date: new Date(d.Steps_dateTime),
-            sleepMinutes: +d.Sleep_Main_minutesAsleep,
+            sleepMinutes: +d.Sleep_Main_minutesAsleep / 60.0,
             avgHeartRate: +d.HeartRate_value,
             steps: +d.Steps_duration,
           };
