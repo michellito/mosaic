@@ -2,7 +2,7 @@
 
 let width = document.getElementById("main").offsetWidth * .5;
 let height = window.innerWidth;
-let paddingLeft = 50;
+let paddingLeft = 100;
 let paddingRight = 75;
 
 // set up svg canvas
@@ -38,7 +38,7 @@ for (let i = 0; i < selectedParticipants.length; i++) {
   }
 }
 
-loadSummaryData(selectedParticipants).then(function(response) {
+loadData(selectedParticipants).then(function(response) {
   selectedParticipantData = response;
   setScales(selectedParticipantData);
   drawCharts();
@@ -48,13 +48,11 @@ loadSummaryData(selectedParticipants).then(function(response) {
   attributeSelect.set(selectedAttributes);
 });
 
-loadSummaryData(allParticipants).then(function(response) {
+loadData(allParticipants).then(function(response) {
   getAvg(response);
 });
 
 // ------- up -------------//
-
-
 
 function drawCharts() {
 
@@ -137,17 +135,17 @@ function updateAxes(group, d) {
   group.append("text")   
     .text(function(d) {
       return d.id
-    })
+    });
 
   group.append("g")
     .attr("class", "timeAxis")
     .call(timeAxis)
-    .attr("transform", `translate(${0}, ${50})`)
+    .attr("transform", `translate(${0}, ${50})`);
   
   group.append("g")
     .attr("class", "sleepAxis")
     .call(sleepMinutesAxis)
-    .attr("transform", `translate(${50}, ${0})`)
+    .attr("transform", `translate(${paddingLeft}, ${0})`);
 }
 
 
@@ -177,7 +175,7 @@ function drawAxes(group, d) {
   group.append("g")
     .attr("class", "sleepAxis")
     .call(sleepMinutesAxis)
-    .attr("transform", `translate(${50}, ${0})`)
+    .attr("transform", `translate(${paddingLeft}, ${0})`)
 }
 
 function drawData(group, d) {
@@ -272,7 +270,7 @@ let participantSelect = new SlimSelect({
   closeOnSelect: false,
   onChange: (info) => {
     selectedParticipants = participantSelect.selected();
-    loadSummaryData(selectedParticipants).then(function(response) {
+    loadData(selectedParticipants).then(function(response) {
       selectedParticipantData = response;
       getAvg(selectedParticipantData);
       setScales(selectedParticipantData);
@@ -288,7 +286,6 @@ let attributeSelect = new SlimSelect({
     allAttributes.map(function(attribute) {
       return {text: attribute}
     }),
-  closeOnSelect: false,
   onChange: (info) => {
     selectedAttributes = attributeSelect.selected();
     buildCharts();
@@ -316,7 +313,7 @@ d3.select("#filter-avg").on("click", function() {
   selectedParticipants = Object.keys(filteredSteps);
   participantSelect.set(selectedParticipants);
   
-  loadSummaryData(selectedParticipants).then(function(response) {
+  loadData(selectedParticipants).then(function(response) {
     selectedParticipantData = response;
     setScales(selectedParticipantData);
     buildCharts();

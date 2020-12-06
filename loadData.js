@@ -6,20 +6,22 @@ function fileExists(urlToFile) {
   return xhr.status !== 404;
 }
 
-async function loadSummaryData(participants) {
+async function loadData(participants) {
     
   let allData = {};
 
   for (let i = 0; i < participants.length; i++) {
     let id = participants[i]
-    let path = "data/" + id + '/' + id + "_summary.csv"
-    let sleep_path = "data/" + id + '/' + id + "_sleep.csv"
+    let summaryPath = "data/" + id + '/' + id + "_summary.csv"
+    let sleepPath = "data/" + id + '/' + id + "_sleep.csv"
+    let airPath = "data/" + id + '/' + id + "_air.csv"
 
     let summaryData = [];
     let sleepDetail = [];
+    let airDetail = [];
 
-    if (fileExists(path)) {
-      summaryData = await d3.csv(path, function(d) {
+    if (fileExists(summaryPath)) {
+      summaryData = await d3.csv(summaryPath, function(d) {
         if (d) {
           return {
             date: new Date(d.Steps_dateTime),
@@ -31,8 +33,8 @@ async function loadSummaryData(participants) {
       })
 
     }
-    if (fileExists(sleep_path)) {
-      sleepDetail = await d3.csv(sleep_path, function(d) {
+    if (fileExists(sleepPath)) {
+      sleepDetail = await d3.csv(sleepPath, function(d) {
         if (d) {
           return {
             date: new Date(d.date),
@@ -42,11 +44,27 @@ async function loadSummaryData(participants) {
           };
   
         }
-        
       })
     }
+
+    // if (fileExists(airPath)) {
+    //   airDetail = await d3.csv(airPath, function(d) {
+    //     if (d) {
+    //       return {
+    //         dateTime: new Date(d.Timestamp),
+    //         temperature: +d.Temperature,
+    //         carbonDioxide: +d.CO2,
+    //         humidity: +d.Humidity,
+    //       };
+    //     }
+    //   })
+    // }
     
-    allData[id] = {summaryData: summaryData, sleepDetail: sleepDetail};
+    allData[id] = {
+      summaryData: summaryData,
+      sleepDetail: sleepDetail,
+      airDetail: airDetail,
+    };
 
   }
 
