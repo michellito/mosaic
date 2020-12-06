@@ -25,9 +25,9 @@ async function loadData(participants) {
         if (d) {
           return {
             date: new Date(d.Steps_dateTime),
-            sleepMinutes: +d.Sleep_Main_minutesAsleep / 60.0,
+            sleepMinutes: parseInt(d.Sleep_Main_minutesAsleep) / 60.0,
             avgHeartRate: +d.HeartRate_value,
-            steps: +d.Steps_duration,
+            steps: parseInt(d.Steps_duration),
           };
         }
       })
@@ -52,9 +52,9 @@ async function loadData(participants) {
         if (d) {
           return {
             dateTime: new Date(d.Timestamp),
-            temperature: +d.Temperature,
-            carbonDioxide: +d.CO2,
-            humidity: +d.Humidity,
+            temperature: parseFloat(d.Temperature),
+            carbonDioxide: parseFloat(d.CO2),
+            humidity: parseFloat(d.Humidity),
           };
         }
       })

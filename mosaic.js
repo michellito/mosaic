@@ -127,21 +127,28 @@ function drawData(group, d) {
 }
 
 function drawLineChart(group, data, scale, colorScale, tooltip, attrib_name) {
+
+  let line = d3.line()
+    .defined(d => !isNaN(d[attrib_name]))
+    .x(function(d) { return timeScale(d.dateTime) })
+    .y(function(d) {
+      return scale(d[attrib_name]);
+    })
+  
+  group.append("path")
+    .datum(data.filter(line.defined()))
+    .attr("class", "missingPath")
+    .attr("stroke", "#ccc")
+    .attr("fill", "none")
+    .attr("d", line);
+
   group.append("path")
     .datum(data)
+    .attr("class", "dataPath")
     .attr("fill", "none")
     .attr("stroke", "steelblue")
     .attr("stroke-width", 1.5)
-    .attr("d", d3.line()
-      .x(function(d) { return timeScale(d.dateTime) })
-      .y(function(d) {
-         if (d['attrib_name'] !== null) {
-           return scale(d[attrib_name]);
-         } else {
-          return 0;
-         }
-      })
-    );
+    .attr("d", line);
 }
 
 function drawBarChart(group, data, scale, colorScale, tooltip, attrib_name) {
@@ -248,20 +255,25 @@ function updateData(group, d) {
       })
   } else if (chartType === 'line') {
     let data = selectedParticipantData[d.id][dataLocation];
-    group.select("path")
+    
+    let line = d3.line()
+      .defined(d => !isNaN(d[attrib_name]))
+      .x(function(d) { return timeScale(d.dateTime) })
+      .y(function(d) {
+        return scale(d[attrib_name]);
+      })
+
+    group.select(".missingPath")
+      .datum(data.filter(line.defined()))
+      .transition()
+      .duration(1000)
+      .attr("d", line);
+
+    group.select(".dataPath")
       .datum(data)
       .transition()
       .duration(1000)
-      .attr("d", d3.line()
-        .x(function(d) { return timeScale(d.dateTime) })
-        .y(function(d) {
-          if (d['attrib_name'] !== null) {
-            return scale(d[attrib_name]);
-          } else {
-            return 0;
-          }
-        })
-      );
+      .attr("d", line);
   }
 }
 
