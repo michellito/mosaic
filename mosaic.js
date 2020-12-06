@@ -253,6 +253,31 @@ function drawData(group, d) {
 
 // ------- setup sidebar menu & interactions ------------- //
 
+function buildCharts() {
+  let updatedCharts = [];
+  if (orderSelect.selected() === 'Attribute') {
+    for (let i = 0; i < selectedAttributes.length; i++) {
+      for (let j = 0; j < selectedParticipants.length; j++) {
+        updatedCharts.push({
+          id: selectedParticipants[j],
+          attribute: selectedAttributes[i]
+        });
+      }
+    }
+  } else {
+    for (let i = 0; i < selectedParticipants.length; i++) {
+      for (let j = 0; j < selectedAttributes.length; j++) {
+        updatedCharts.push({
+          id: selectedParticipants[i],
+          attribute: selectedAttributes[j]
+        });
+      }
+    }
+  }
+  charts = updatedCharts;
+  drawCharts();
+}
+
 let orderSelect = new SlimSelect({
   select: '#orderSelect',
   showSearch: false,
@@ -261,30 +286,7 @@ let orderSelect = new SlimSelect({
     {text: 'Attribute'}
   ],
   onChange: (info) => {
-    
-    let selected = orderSelect.selected();
-    let updatedCharts = [];
-    if (selected === 'Attribute') {
-      for (let i = 0; i < selectedAttributes.length; i++) {
-        for (let j = 0; j < selectedParticipants.length; j++) {
-          updatedCharts.push({
-            id: selectedParticipants[j],
-            attribute: selectedAttributes[i]
-          });
-        }
-      }
-    } else {
-      for (let i = 0; i < selectedParticipants.length; i++) {
-        for (let j = 0; j < selectedAttributes.length; j++) {
-          updatedCharts.push({
-            id: selectedParticipants[i],
-            attribute: selectedAttributes[j]
-          });
-        }
-    }
-    charts = updatedCharts;
-    drawCharts();
-    }
+    buildCharts();
   }
 })
 
@@ -302,17 +304,7 @@ let participantSelect = new SlimSelect({
       selectedParticipantData = response;
       getAvg(selectedParticipantData);
       setScales(selectedParticipantData);
-      let updatedCharts = [];
-      for (let i = 0; i < selectedParticipants.length; i++) {
-        for (let j = 0; j < selectedAttributes.length; j++) {
-          updatedCharts.push({
-            id: selectedParticipants[i],
-            attribute: selectedAttributes[j]
-          });
-        }
-      }
-      charts = updatedCharts;
-      drawCharts();
+      buildCharts();
     })
   }
 })
@@ -327,14 +319,7 @@ let attributeSelect = new SlimSelect({
   closeOnSelect: false,
   onChange: (info) => {
     selectedAttributes = attributeSelect.selected();
-    let updatedCharts = [];
-    for (let i = 0; i < selectedParticipants.length; i++) {
-      for (let j = 0; j < selectedAttributes.length; j++) {
-        updatedCharts.push({id: selectedParticipants[i], attribute: selectedAttributes[j]});
-      }
-    }
-    charts = updatedCharts;
-    drawCharts();
+    buildCharts();
   }
 })
 
@@ -362,16 +347,6 @@ d3.select("#filter-avg").on("click", function() {
   loadSummaryData(selectedParticipants).then(function(response) {
     selectedParticipantData = response;
     setScales(selectedParticipantData);
-    let updatedCharts = [];
-    for (let i = 0; i < selectedParticipants.length; i++) {
-      for (let j = 0; j < selectedAttributes.length; j++) {
-        updatedCharts.push({
-          id: selectedParticipants[i],
-          attribute: selectedAttributes[j]
-        });
-      }
-    }
-    charts = updatedCharts;
-    drawCharts();
+    buildCharts();
   })
 });
