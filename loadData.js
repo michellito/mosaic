@@ -14,14 +14,14 @@ async function loadData(participants) {
     let id = participants[i]
     let summaryPath = "data/" + id + '/' + id + "_summary.csv"
     let sleepPath = "data/" + id + '/' + id + "_sleep.csv"
-    let airPath = "data/" + id + '/' + id + "_air.csv"
+    let airPath = "data/" + id + '/' + id + "_daily_air.csv"
 
-    let summaryData = [];
+    let fitbitSummary = [];
     let sleepDetail = [];
     let airDetail = [];
 
     if (fileExists(summaryPath)) {
-      summaryData = await d3.csv(summaryPath, function(d) {
+      fitbitSummary = await d3.csv(summaryPath, function(d) {
         if (d) {
           return {
             date: new Date(d.Steps_dateTime),
@@ -47,26 +47,28 @@ async function loadData(participants) {
       })
     }
 
-    // if (fileExists(airPath)) {
-    //   airDetail = await d3.csv(airPath, function(d) {
-    //     if (d) {
-    //       return {
-    //         dateTime: new Date(d.Timestamp),
-    //         temperature: +d.Temperature,
-    //         carbonDioxide: +d.CO2,
-    //         humidity: +d.Humidity,
-    //       };
-    //     }
-    //   })
-    // }
+    if (fileExists(airPath)) {
+      dailyAir = await d3.csv(airPath, function(d) {
+        if (d) {
+          return {
+            dateTime: new Date(d.Timestamp),
+            temperature: +d.Temperature,
+            carbonDioxide: +d.CO2,
+            humidity: +d.Humidity,
+          };
+        }
+      })
+    }
     
     allData[id] = {
-      summaryData: summaryData,
+      fitbitSummary: fitbitSummary,
       sleepDetail: sleepDetail,
-      airDetail: airDetail,
+      dailyAir: dailyAir,
     };
 
   }
+
+  console.log(allData)
 
   return allData;
 }

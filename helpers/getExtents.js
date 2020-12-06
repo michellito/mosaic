@@ -20,18 +20,23 @@ function getExtents(participantData) {
   let timeExtents = [];
   let sleepExtents = [];
   let stepExtents = [];
+  let carbonDioxideExtents = [];
   
   for (const participant in participantData) {
-    timeExtents.push(d3.extent(participantData[participant].summaryData.map(function(d) {
+    timeExtents.push(d3.extent(participantData[participant].fitbitSummary.map(function(d) {
       return d.date;
     })))
 
-    sleepExtents.push(d3.extent(participantData[participant].summaryData.map(function(d) {
+    sleepExtents.push(d3.extent(participantData[participant].fitbitSummary.map(function(d) {
       return d.sleepMinutes;
     })));
 
-    stepExtents.push(d3.extent(participantData[participant].summaryData.map(function(d) {
+    stepExtents.push(d3.extent(participantData[participant].fitbitSummary.map(function(d) {
       return d.steps;
+    })));
+
+    carbonDioxideExtents.push(d3.extent(participantData[participant].dailyAir.map(function(d) {
+      return d.carbonDioxide;
     })));
 
   }
@@ -39,10 +44,12 @@ function getExtents(participantData) {
   timeRange = getExtent(timeExtents);
   stepRange = getExtent(stepExtents);
   sleepRange = getExtent(sleepExtents);
+  carbonDioxideRange = getExtent(carbonDioxideExtents);
 
   return {
     time: timeRange,
     steps: stepRange,
-    sleep: sleepRange
+    sleep: sleepRange,
+    carbonDioxide: carbonDioxideRange,
   }
 }

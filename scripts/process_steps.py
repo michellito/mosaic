@@ -14,8 +14,8 @@ participants = [
 ]
 
 for participant in participants:
-    path = 'data/' + participant + '/' + participant + '_steps.csv'
-    df = pd.read_csv(path, parse_dates=['Timestamp'], index_col=['Timestamp'])
+  path = 'data/' + participant + '/' + participant + '_steps.csv'
+  df = pd.read_csv(path, parse_dates=['Timestamp'], index_col=['Timestamp'])
 
-    hourly = df.resample('H').sum()
-    hourly.to_csv('data/' + participant + '/' + participant + '_hourly_steps.csv')
+  hourly = df.resample('H').sum()
+  hourly.to_csv('data/' + participant + '/' + participant + '_hourly_steps.csv')

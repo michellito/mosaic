@@ -1,6 +1,6 @@
 // ---------------- global formatting vars -----------------//
 
-let width = document.getElementById("main").offsetWidth * .5;
+let width = document.getElementById("main").offsetWidth * .8;
 let height = window.innerWidth;
 let paddingLeft = 100;
 let paddingRight = 75;
@@ -22,7 +22,7 @@ let allParticipants = [
   'S026', 'S027', 'S028', 'S029', 'S030',
 ]
 
-let allAttributes = ['sleep', 'steps']
+let allAttributes = ['sleep', 'steps', 'carbon dioxide']
 let avg = []
 let avgExtents = {}
 
@@ -77,6 +77,7 @@ function drawCharts() {
           .attr('transform', (d,i) => `translate(${0}, ${100 + (i * 80)})`)
           .each(function(d) {
             updateData(d3.select(this), d)
+            // updateAxes(d3.select(this), d)
           })
         group.select(".timeAxis").call(timeAxis);
         group.select(".sleepAxis").call(sleepMinutesAxis);
@@ -87,96 +88,7 @@ function drawCharts() {
     );
 }
 
-function updateData(group, d) {
-  let attribute = d.attribute;
-  let scale, colorScale;
-  
-  if (attribute === 'sleep') {
-    scale = sleepMinutesScale;
-    colorScale = sleepMinutesColorScale;
-    attrib_name = 'sleepMinutes';
-  } else if (attribute === 'steps') {
-    scale = stepsScale;
-    colorScale = stepsColorScale;
-    attrib_name = 'steps';
-  }
-
-  group.selectAll("rect")
-    .transition()
-    .duration(1000)
-    .attr("x", function(d, i) {
-      return timeScale(d.date);
-    })
-    .attr("y", function(d, i) {
-      return scale(d[attrib_name]);
-    })
-    .attr("width", 10)
-    .attr("height", function(d, i) {
-      return 50 - scale(d[attrib_name]);
-    })
-    .attr("fill", function(d, i) {
-      return colorScale(d[attrib_name])
-    })
-}
-
-function updateAxes(group, d) {
-
-  let attribute = d.attribute;
-  let axis, label;
-  
-  if (attribute === 'sleep') {
-    axis = sleepMinutesAxis;
-    label = 'Sleep (hrs/day)';
-  } else if (attribute === 'steps') {
-    axis = stepsAxis;
-    label = 'Steps';
-  }
-
-  group.append("text")   
-    .text(function(d) {
-      return d.id
-    });
-
-  group.append("g")
-    .attr("class", "timeAxis")
-    .call(timeAxis)
-    .attr("transform", `translate(${0}, ${50})`);
-  
-  group.append("g")
-    .attr("class", "sleepAxis")
-    .call(sleepMinutesAxis)
-    .attr("transform", `translate(${paddingLeft}, ${0})`);
-}
-
-
-function drawAxes(group, d) {
-
-  let attribute = d.attribute;
-  let axis, label;
-  
-  if (attribute === 'sleep') {
-    axis = sleepMinutesAxis;
-    label = 'Sleep (hrs/day)';
-  } else if (attribute === 'steps') {
-    axis = stepsAxis;
-    label = 'Steps';
-  }
-
-  group.append("text")   
-    .text(function(d) {
-      return d.id
-    })
-
-  group.append("g")
-    .attr("class", "timeAxis")
-    .call(timeAxis)
-    .attr("transform", `translate(${0}, ${50})`)
-  
-  group.append("g")
-    .attr("class", "sleepAxis")
-    .call(sleepMinutesAxis)
-    .attr("transform", `translate(${paddingLeft}, ${0})`)
-}
+// -------------- handle initial drawing of data -------------- //
 
 function drawData(group, d) {
 
@@ -188,15 +100,52 @@ function drawData(group, d) {
     colorScale = sleepMinutesColorScale;
     tooltip = sleepTooltip;
     attrib_name = 'sleepMinutes';
+    dataLocation = 'fitbitSummary';
+    chartType = 'bar'
   } else if (attribute === 'steps') {
     scale = stepsScale;
     colorScale = stepsColorScale;
     tooltip = stepsTooltip;
     attrib_name = 'steps';
+    dataLocation = 'fitbitSummary';
+    chartType = 'bar'
+  } else if (attribute === 'carbon dioxide') {
+    scale = carbonDioxideScale;
+    colorScale = carbonDioxideColorScale;
+    tooltip = stepsTooltip;
+    attrib_name = 'carbonDioxide';
+    dataLocation = 'dailyAir';
+    chartType = 'line'
   }
 
-  let data = selectedParticipantData[d.id].summaryData;
+  let data = selectedParticipantData[d.id][dataLocation];
 
+  if (chartType === 'bar') {
+    drawBarChart(group, data, scale, colorScale, tooltip, attrib_name);
+  } else if (chartType === 'line') {
+    drawLineChart(group, data, scale, colorScale, tooltip, attrib_name);
+  }
+}
+
+function drawLineChart(group, data, scale, colorScale, tooltip, attrib_name) {
+  group.append("path")
+    .datum(data)
+    .attr("fill", "none")
+    .attr("stroke", "steelblue")
+    .attr("stroke-width", 1.5)
+    .attr("d", d3.line()
+      .x(function(d) { return timeScale(d.dateTime) })
+      .y(function(d) {
+         if (d['attrib_name'] !== null) {
+           return scale(d[attrib_name]);
+         } else {
+          return 0;
+         }
+      })
+    );
+}
+
+function drawBarChart(group, data, scale, colorScale, tooltip, attrib_name) {
   group.selectAll("rect")
     .data(data)
     .enter()
@@ -219,6 +168,121 @@ function drawData(group, d) {
       tooltip.show(event, d)
     })
     .on('mouseout', tooltip.hide)
+}
+
+function drawAxes(group, d) {
+
+  let attribute = d.attribute;
+  let axis, label;
+  
+  if (attribute === 'sleep') {
+    axis = sleepMinutesAxis;
+    className = 'sleepAxis';
+    label = 'Sleep (hrs/day)';
+  } else if (attribute === 'steps') {
+    axis = stepsAxis;
+    className = 'stepsAxis';
+    label = 'Steps';
+  } else if (attribute === 'carbon dioxide') {
+    axis = carbonDioxideAxis;
+    className = 'carbonDioxideAxis';
+    label = 'CO2'
+  }
+  group.append("text")   
+    .text(function(d) {
+      return d.id
+    })
+
+  group.append("g")
+    .attr("class", "timeAxis")
+    .call(timeAxis)
+    .attr("transform", `translate(${0}, ${50})`)
+  
+  group.append("g")
+    .attr("class", className)
+    .call(axis)
+    .attr("transform", `translate(${paddingLeft}, ${0})`)
+}
+
+// --------------------- handle data update ------------------ //
+
+function updateData(group, d) {
+  let attribute = d.attribute;
+  let scale, colorScale;
+  
+  if (attribute === 'sleep') {
+    scale = sleepMinutesScale;
+    colorScale = sleepMinutesColorScale;
+    attrib_name = 'sleepMinutes';
+    chartType = 'bar'
+  } else if (attribute === 'steps') {
+    scale = stepsScale;
+    colorScale = stepsColorScale;
+    attrib_name = 'steps';
+    chartType = 'bar'
+  } else if (attribute === 'carbon dioxide') {
+    scale = carbonDioxideScale;
+    colorScale = carbonDioxideColorScale;
+    attrib_name = 'carbonDioxide';
+    chartType = 'line'
+  }
+  
+  if (chartType === 'bar') {
+    group.selectAll("rect")
+      .transition()
+      .duration(1000)
+      .attr("x", function(d, i) {
+        return timeScale(d.date);
+      })
+      .attr("y", function(d, i) {
+        return scale(d[attrib_name]);
+      })
+      .attr("width", 10)
+      .attr("height", function(d, i) {
+        return 50 - scale(d[attrib_name]);
+      })
+      .attr("fill", function(d, i) {
+        return colorScale(d[attrib_name])
+      })
+  } else if (chartType === 'line') {
+    group.selectAll("path")
+      .transition()
+      .duration(1000)
+      .attr("d", d3.line()
+        .x(function(d) { return timeScale(d.dateTime) })
+        .y(function(d) {
+          if (d['attrib_name'] !== null) {
+            return scale(d[attrib_name]);
+          } else {
+            return 0;
+          }
+        })
+      );
+  }
+}
+
+function updateAxes(group, d) {
+
+  let attribute = d.attribute;
+  let axis, label;
+  
+  if (attribute === 'sleep') {
+    axis = sleepMinutesAxis;
+    className = 'sleepAxis';
+  } else if (attribute === 'steps') {
+    axis = stepsAxis;
+    className = 'stepsAxis';
+  } else if (attribute === 'carbon dioxide') {
+    axis = carbonDioxideAxis;
+    className = 'carbonDioxideAxis';
+  }
+
+  group.select(".timeAxis")
+    .call(timeAxis)
+  
+  group.select("." + className)
+    .call(axis)
+
 }
 
 // ------- setup sidebar menu & interactions ------------- //
@@ -272,7 +336,6 @@ let participantSelect = new SlimSelect({
     selectedParticipants = participantSelect.selected();
     loadData(selectedParticipants).then(function(response) {
       selectedParticipantData = response;
-      getAvg(selectedParticipantData);
       setScales(selectedParticipantData);
       buildCharts();
     })
