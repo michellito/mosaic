@@ -56,6 +56,7 @@ loadData(allParticipants).then(function(response) {
 
 function drawCharts() {
 
+  console.log(charts)
   svg.selectAll(".chart")
     .data(charts, d => d.attribute + d.id)
     .join(
@@ -77,10 +78,8 @@ function drawCharts() {
           .attr('transform', (d,i) => `translate(${0}, ${100 + (i * 80)})`)
           .each(function(d) {
             updateData(d3.select(this), d)
-            // updateAxes(d3.select(this), d)
+            updateAxes(d3.select(this), d)
           })
-        group.select(".timeAxis").call(timeAxis);
-        group.select(".sleepAxis").call(sleepMinutesAxis);
       },
       function(exit) {
         exit.remove();
@@ -215,16 +214,19 @@ function updateData(group, d) {
     colorScale = sleepMinutesColorScale;
     attrib_name = 'sleepMinutes';
     chartType = 'bar'
+    dataLocation = 'fitbitSummary';
   } else if (attribute === 'steps') {
     scale = stepsScale;
     colorScale = stepsColorScale;
     attrib_name = 'steps';
     chartType = 'bar'
+    dataLocation = 'fitbitSummary';
   } else if (attribute === 'carbon dioxide') {
     scale = carbonDioxideScale;
     colorScale = carbonDioxideColorScale;
     attrib_name = 'carbonDioxide';
     chartType = 'line'
+    dataLocation = 'dailyAir';
   }
   
   if (chartType === 'bar') {
@@ -245,7 +247,9 @@ function updateData(group, d) {
         return colorScale(d[attrib_name])
       })
   } else if (chartType === 'line') {
-    group.selectAll("path")
+    let data = selectedParticipantData[d.id][dataLocation];
+    group.select("path")
+      .datum(data)
       .transition()
       .duration(1000)
       .attr("d", d3.line()
