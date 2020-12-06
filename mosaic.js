@@ -22,7 +22,7 @@ let allParticipants = [
   'S026', 'S027', 'S028', 'S029', 'S030',
 ]
 
-let allAttributes = ['sleep', 'steps', 'carbon dioxide']
+let allAttributes = ['sleep', 'steps', 'carbon dioxide', 'humidity', 'temperature']
 let avg = []
 let avgExtents = {}
 
@@ -115,6 +115,23 @@ function drawData(group, d) {
     attrib_name = 'carbonDioxide';
     dataLocation = 'dailyAir';
     chartType = 'line'
+    lineColor = 'darkslateblue';
+  } else if (attribute === 'humidity') {
+    scale = humidityScale;
+    colorScale = humidityColorScale;
+    tooltip = stepsTooltip;
+    attrib_name = 'humidity';
+    dataLocation = 'dailyAir';
+    chartType = 'line';
+    lineColor = 'mediumseagreen';
+  } else if (attribute === 'temperature') {
+    scale = temperatureScale;
+    colorScale = temperatureColorScale;
+    tooltip = stepsTooltip;
+    attrib_name = 'temperature';
+    dataLocation = 'dailyAir';
+    chartType = 'line';
+    lineColor = 'sienna'
   }
 
   let data = selectedParticipantData[d.id][dataLocation];
@@ -122,11 +139,11 @@ function drawData(group, d) {
   if (chartType === 'bar') {
     drawBarChart(group, data, scale, colorScale, tooltip, attrib_name);
   } else if (chartType === 'line') {
-    drawLineChart(group, data, scale, colorScale, tooltip, attrib_name);
+    drawLineChart(group, data, scale, colorScale, tooltip, attrib_name, lineColor);
   }
 }
 
-function drawLineChart(group, data, scale, colorScale, tooltip, attrib_name) {
+function drawLineChart(group, data, scale, colorScale, tooltip, attrib_name, lineColor) {
 
   let line = d3.line()
     .defined(d => !isNaN(d[attrib_name]))
@@ -146,8 +163,8 @@ function drawLineChart(group, data, scale, colorScale, tooltip, attrib_name) {
     .datum(data)
     .attr("class", "dataPath")
     .attr("fill", "none")
-    .attr("stroke", "steelblue")
-    .attr("stroke-width", 1.5)
+    .attr("stroke", lineColor)
+    .attr("stroke-width", 2)
     .attr("d", line);
 }
 
@@ -193,7 +210,16 @@ function drawAxes(group, d) {
     axis = carbonDioxideAxis;
     className = 'carbonDioxideAxis';
     label = 'CO2'
+  } else if (attribute === 'humidity') {
+    axis = humidityAxis;
+    className = 'humidityAxis';
+    label = 'CO2'
+  } else if (attribute === 'temperature') {
+    axis = temperatureAxis;
+    className = 'temperatureAxis';
+    label = 'CO2'
   }
+
   group.append("text")   
     .text(function(d) {
       return d.id
@@ -234,7 +260,20 @@ function updateData(group, d) {
     attrib_name = 'carbonDioxide';
     chartType = 'line'
     dataLocation = 'dailyAir';
+  } else if (attribute === 'humidity') {
+    scale = humidityScale;
+    colorScale = humidityColorScale;
+    attrib_name = 'humidity';
+    chartType = 'line'
+    dataLocation = 'dailyAir';
+  } else if (attribute === 'temperature') {
+    scale = temperatureScale;
+    colorScale = temperatureColorScale;
+    attrib_name = 'temperature';
+    chartType = 'line'
+    dataLocation = 'dailyAir';
   }
+  
   
   if (chartType === 'bar') {
     group.selectAll("rect")
@@ -291,8 +330,14 @@ function updateAxes(group, d) {
   } else if (attribute === 'carbon dioxide') {
     axis = carbonDioxideAxis;
     className = 'carbonDioxideAxis';
+  } else if (attribute === 'humidity') {
+    axis = humidityAxis;
+    className = 'humidityAxis';
+  } else if (attribute === 'temperature') {
+    axis = temperatureAxis;
+    className = 'temperatureAxis';
   }
-
+ 
   group.select(".timeAxis")
     .call(timeAxis)
   

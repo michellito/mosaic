@@ -49,4 +49,28 @@ function setScales(data) {
   carbonDioxideColorScale = d3.scaleSequential(d3.interpolateGreens)
     .domain(extents.carbonDioxide)
 
+  // humidity scales
+  humidityScale = d3.scaleLinear()
+    .domain(extents.humidity)
+    .range([50, 0]);
+
+  humidityAxis = d3.axisLeft()
+    .scale(humidityScale)
+    .ticks(3);
+  
+  humidityColorScale = d3.scaleSequential(d3.interpolateGreens)
+    .domain(extents.humidity)
+
+  // temperature scales
+  temperatureScale = d3.scaleLinear()
+    .domain(extents.temperature)
+    .range([50, 0]);
+
+  temperatureAxis = d3.axisLeft()
+    .scale(temperatureScale)
+    .ticks(3);
+  
+  temperatureColorScale = d3.scaleSequential(d3.interpolateGreens)
+    .domain(extents.temperature)
+
 }
