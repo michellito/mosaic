@@ -1,8 +1,8 @@
 // ---------------- global formatting vars -----------------//
 
-let width = document.getElementById("main").offsetWidth * .8;
+let width = 1100;
 let height = window.innerWidth;
-let paddingLeft = 100;
+let paddingLeft = 120;
 let paddingRight = 75;
 
 // set up svg canvas
@@ -206,29 +206,51 @@ function drawAxes(group, d) {
   if (attribute === 'sleep') {
     axis = sleepMinutesAxis;
     className = 'sleepAxis';
-    label = 'Sleep (hrs/day)';
+    label = 'Sleep';
+    units = '(hrs/day)'
   } else if (attribute === 'steps') {
     axis = stepsAxis;
     className = 'stepsAxis';
     label = 'Steps';
+    units = '(steps/day)'
   } else if (attribute === 'carbon dioxide') {
     axis = carbonDioxideAxis;
     className = 'carbonDioxideAxis';
-    label = 'CO2'
+    label = 'CO₂ Level'
+    units = '(ppm)'
   } else if (attribute === 'humidity') {
     axis = humidityAxis;
     className = 'humidityAxis';
-    label = 'CO2'
+    label = 'Humidity'
+    units = '(%)'
   } else if (attribute === 'temperature') {
     axis = temperatureAxis;
     className = 'temperatureAxis';
-    label = 'CO2'
+    label = 'Temperature'
+    units = '(°F)'
   }
 
   group.append("text")   
     .text(function(d) {
       return d.id
     })
+    .attr("transform", `translate(${0}, ${15})`)
+    .attr("class", "participant-label")
+  
+  group.append("text")   
+    .text(function(d) {
+      return label
+    })
+    .attr("transform", `translate(${0}, ${38})`)
+    .attr("class", "attribute-label")
+  
+  group.append("text")   
+    .text(function(d) {
+      return units
+    })
+    .attr("transform", `translate(${0}, ${53})`)
+    .attr("class", "unit-label")
+    
 
   group.append("g")
     .attr("class", "timeAxis")
