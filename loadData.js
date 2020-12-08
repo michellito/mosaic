@@ -68,7 +68,6 @@ async function loadData(participants) {
 
   }
 
-  console.log(allData)
 
   return allData;
 }

@@ -185,12 +185,17 @@ function drawBarChart(group, data, scale, colorScale, tooltip, attrib_name) {
     })
     .attr("fill", function(d, i) {
       return colorScale(d[attrib_name])
-    })
-    .call(tooltip)
+    });
+  
+  // call tooltip only if data exists for participant (other throws error)
+  if (data.length) {
+    group.call(tooltip)
     .on('mouseover', function(event,d) {
       tooltip.show(event, d)
     })
     .on('mouseout', tooltip.hide)
+  }
+    
 }
 
 function drawAxes(group, d) {
