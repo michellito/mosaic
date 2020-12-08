@@ -11,6 +11,44 @@ let svg = d3.select("#main")
   .attr("width", width)
   .attr("height", height)
 
+let timelineGroup = d3.select("#main").select("svg")
+  .append("g")
+  .attr("id", "timeline")
+  .attr("transform", `translate (${0}, ${20})`);
+
+timelineGroup.append("rect")
+  .attr("x", paddingLeft)
+  .attr("y", 0)
+  .attr("height", 30)
+  .attr("width", width - paddingLeft - paddingRight)
+  .style("stroke", d3.rgb(169,169,169))
+  .style("stroke-width", "2")
+  .style("fill", d3.rgb(211,211,211))
+
+function brushed({selection}) {
+  // console.log('hi')
+  if (selection) {
+    var startDate = timeScale.invert(selection[0]);
+    var endDate = timeScale.invert(selection[1]);
+    // updateTimeRange([startDate, endDate]);
+  }
+}
+
+function brushended({selection}) {
+  // console.log('end')
+  if (!selection) {
+   
+    // this.props.updateTimeRange();
+  }
+}
+  
+let brush = d3.brushX()
+  .extent([[paddingLeft, 0], [width - paddingRight, 30]])
+  .on("brush", brushed)
+  .on("end", brushended);
+
+let slider = document.getElementById('slider');
+
 // --------------------- initialize data ---------------------//
 
 let allParticipants = [
@@ -46,17 +84,42 @@ loadData(selectedParticipants).then(function(response) {
   // set participant & attrib select to initial values
   participantSelect.set(selectedParticipants);
   attributeSelect.set(selectedAttributes);
+
+ 
+
+  var defaultSelection = [timeScale.range()[0], timeScale.range()[1]];
+
+  timelineGroup.append("g")
+    .call(brush)
+    .call(brush.move, defaultSelection);
+
+    // append axes
+  timelineGroup.append("g")
+      .attr("transform", `translate(${0}, ${30})`)
+      .call(timeAxis);
+
 });
 
 loadData(allParticipants).then(function(response) {
   getAvg(response);
+  
+
+  noUiSlider.create(slider, {
+      start: [Math.round(avgExtents['sleepMinutes'][0]), Math.round(avgExtents['sleepMinutes'][1])],
+      tooltips: [true, true],
+      connect: true,
+      step: 1,
+      range: {
+          'min': Math.round(avgExtents['sleepMinutes'][0]),
+          'max': Math.round(avgExtents['sleepMinutes'][1])
+      }
+  });
 });
 
 // ------- up -------------//
 
 function drawCharts() {
 
-  console.log(charts)
   svg.selectAll(".chart")
     .data(charts, d => d.attribute + d.id)
     .join(
@@ -412,6 +475,36 @@ let orderSelect = new SlimSelect({
   }
 })
 
+let avgAttributeSelect = new SlimSelect({
+  select: '#avgAttributeSelect',
+  showSearch: false,
+  data: allAttributes.map(function(attribute) {
+    return {text: attribute}
+  }),
+  onChange: (info) => {
+    let selectedAttribute = avgAttributeSelect.selected()
+    let varMap = {
+      'steps': 'steps',
+      'sleep': 'sleepMinutes',
+      'carbon dioxide': 'carbonDioxide',
+      'humidity': 'humidity',
+      'temperature': 'temperature',
+    }
+    slider.noUiSlider.updateOptions(
+      { range: 
+        { 
+          'min': Math.round(avgExtents[varMap[selectedAttribute]][0]),
+          'max': Math.round(avgExtents[varMap[selectedAttribute]][1])
+        }
+      },
+      true // Boolean 'fireSetEvent'
+    );
+
+    slider.noUiSlider.set([Math.round(avgExtents[varMap[selectedAttribute]][0]), Math.round(avgExtents[varMap[selectedAttribute]][1])]);
+  }
+})
+
+
 let participantSelect = new SlimSelect({
   select: '#participantSelect',
   placeholder: 'Select Participants',
@@ -443,25 +536,38 @@ let attributeSelect = new SlimSelect({
   }
 })
 
+
+
 d3.select("#filter-avg").on("click", function() {
-  let minSteps = document.getElementById("minSteps").value;
-  let maxSteps = document.getElementById("maxSteps").value;
 
-  let filteredSteps = avg;
+  let varMap = {
+    'steps': 'steps',
+    'sleep': 'sleepMinutes',
+    'carbon dioxide': 'carbonDioxide',
+    'humidity': 'humidity',
+    'temperature': 'temperature',
+  }
 
-  if (minSteps) {
-    filteredSteps = _.pickBy(filteredSteps, function(value, key) {
-      return value.steps >= minSteps;
+  let attribute = varMap[avgAttributeSelect.selected()]
+  let range = slider.noUiSlider.get()
+  
+  range = [+range[0], +range[1]]
+
+  let filteredData = avg;
+
+  if (range[0]) {
+    filteredData = _.pickBy(filteredData, function(value, key) {
+      return value[attribute] >= range[0];
     })
   }
 
-  if (maxSteps) {
-    filteredSteps = _.pickBy(filteredSteps, function(value, key) {
-      return value.steps <= maxSteps;
+  if (range[1]) {
+    filteredData = _.pickBy(filteredData, function(value, key) {
+      return value[attribute] <= range[1];
     })
   }
 
-  selectedParticipants = Object.keys(filteredSteps);
+  selectedParticipants = Object.keys(filteredData);
   participantSelect.set(selectedParticipants);
   
   loadData(selectedParticipants).then(function(response) {

@@ -52,5 +52,4 @@ function getAvg(data) {
     avgExtents['humidity'] = d3.extent(humidityAvg)
     avgExtents['temperature'] = d3.extent(temperatureAvg)
 
-    console.log(avg)
   }
