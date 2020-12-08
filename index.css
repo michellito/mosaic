@@ -47,7 +47,7 @@
 
 .participant-label {
   font-size: 16px;
-  fill: #0D3B66 
+  fill: #394359 
 }
 
 .attribute-label {
@@ -59,4 +59,8 @@
 .unit-label {
   font-size: 12px;
   fill: #394359 ;
+}
+
+.tooltip-text {
+  font-size: 14px;
 }

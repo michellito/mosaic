@@ -15,7 +15,7 @@ let sleepTooltip = d3.tip()
 	.offset([-10, 0])
 	.html(function(event ,d) {
 		var formatTime = d3.timeFormat("%a, %b %e")
-		return "<strong>" + formatTime(d.date) + "<br/></strong> <div style='margin-top:5px'>" + d.sleepMinutes + " hours</div>"
+		return "<strong class='tooltip-text'>" + formatTime(d.date) + "<br/></strong> <div class='tooltip-text'>" + d.sleepMinutes + " hours</div>"
 	});
 
 let stepsTooltip = d3.tip()
@@ -24,7 +24,7 @@ let stepsTooltip = d3.tip()
 	.offset([-10, 0])
 	.html(function(event ,d) {
 		var formatTime = d3.timeFormat("%a, %b %e")
-		return "<strong>" + formatTime(d.date) + "<br/></strong> <div style='margin-top:5px'>" + d.steps + " steps</div>"
+		return "<strong class='tooltip-text'>" + formatTime(d.date) + "<br/></strong> <div class='tooltip-text'>" + d.steps + " steps</div>"
   });
   
 let carbonDioxideTooltip = d3.tip()
@@ -33,5 +33,5 @@ let carbonDioxideTooltip = d3.tip()
 	.offset([-10, 0])
 	.html(function(event ,d) {
 		var formatTime = d3.timeFormat("%a, %b %e")
-		return "<strong>" + formatTime(d.date) + "<br/></strong> <div style='margin-top:5px'>" + d.carbonDioxide + " units</div>"
+		return "<strong class='tooltip-text'>" + formatTime(d.date) + "<br/></strong> <div class='tooltip-text'>" + d.carbonDioxide + " units</div>"
 	});

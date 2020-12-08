@@ -25,7 +25,7 @@ async function loadData(participants) {
         if (d) {
           return {
             date: new Date(d.Steps_dateTime),
-            sleepMinutes: parseInt(d.Sleep_Main_minutesAsleep) / 60.0,
+            sleepMinutes: +(parseInt(d.Sleep_Main_minutesAsleep) / 60.0).toFixed(2),
             avgHeartRate: +d.HeartRate_value,
             steps: parseInt(d.Steps_duration),
           };
