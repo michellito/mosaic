@@ -1,25 +1,21 @@
-# MOSAIC RAAMP2 Data Visualization
-------------
+
+# MOSAIC RAAMP2 Data Vis
 
 This repo contains code for a prototype visualization of the MOSAIC RAAMP2 sensor dataset. The full dataset can be obtained from the [CyVerse Data Commons](https://datacommons.cyverse.org/browse/iplant/home/shared/commons_repo/curated/mosaic_raamp2).
 
-## Notes
+### Clone the repository
 
-To view this project, clone this repository and open `index.html` in a web browser, preferably Google Chrome.
+`git clone git@github.com:michellito/mosaic.git`
+  
 
-The webpage also includes answers to the written questions.
+### Download the Data
 
-## Included files
+A subset of the RAAMP2 data was processed further for specific use with this prototype. It can downloaded from [Google Drive](https://drive.google.com/drive/folders/15QBcoDj0NNJ7759S05TNTI4xcI-n1CzT?usp=sharing).
 
-* a04.js - contains implementation for drawing tree maps using size, count, best direction, and squarify methods
-* d3.v5.js - d3 code bundle
-* flare.js - contains a tree dataset of the files in the source code of Flare, a library for creating data visualizations
-* index.css - custom css
-* index.html - html template for the tree map, buttons for selecting the tree map implementation, and written questions
-* README.md - this file
-* test-cases.js - includes very simple test cases for testing tree functions
+Copy the `data` folder into the cloned `mosaic` folder.  The code currently expects the full dataset of 30 participants (S001-S030) so you must copy the entire folder.
+ 
+### Install web server
 
+This project requires a local web server to run because it fetches data locally.  I used https://github.com/tapio/live-server to take advantage of the live reload functionality (requires node.js and npm to install).
 
-## References
-* I referenced the [Squarified Treemaps](https://www.win.tue.nl/~vanwijk/stm.pdf) paper by Bruls, Huizing, and van Wijk to develop my implementation of the Squarify algorithm.
-
+Once installed, you can run the prototype by running `live-server` in the `mosaic` directory.
