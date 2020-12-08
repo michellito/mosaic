@@ -19,3 +19,5 @@ Copy the `data` folder into the cloned `mosaic` folder.  The code currently expe
 This project requires a local web server to run because it fetches data locally.  I used https://github.com/tapio/live-server to take advantage of the live reload functionality (requires node.js and npm to install).
 
 Once installed, you can run the prototype by running `live-server` in the `mosaic` directory.
+
+The prototype should be viewed using Google Chrome (I realized that the polylines don't draw properly in Safari, so it may not work in other browsers besides Chrome).
