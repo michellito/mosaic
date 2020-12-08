@@ -169,7 +169,7 @@ function drawLineChart(group, data, scale, colorScale, tooltip, attrib_name, lin
 }
 
 function drawBarChart(group, data, scale, colorScale, tooltip, attrib_name) {
-  group.selectAll("rect")
+  let rects = group.selectAll("rect")
     .data(data)
     .enter()
     .append("rect")
@@ -189,7 +189,7 @@ function drawBarChart(group, data, scale, colorScale, tooltip, attrib_name) {
   
   // call tooltip only if data exists for participant (other throws error)
   if (data.length) {
-    group.call(tooltip)
+    rects.call(tooltip)
     .on('mouseover', function(event,d) {
       tooltip.show(event, d)
     })
